@@ -1328,6 +1328,11 @@ const ALL_MODES=[
   {id:"checklist",icon:"🕵️",title:"Compliance Detective",desc:"Spot every violation in a flawed counseling session",color:C.orange,badge:"Critical",cat:"sims"},
   {id:"gauntlet",icon:"⚡",title:"Scenario Gauntlet",desc:"All scenarios back-to-back — compete for the leaderboard",color:C.gold,badge:"Competitive",cat:"sims"},
   {id:"mockexam",icon:"📝",title:"Mock HUD Exam",desc:"20-question timed practice exam — topic score breakdown",color:C.navy,badge:"Exam Prep",cat:"exam"},
+  // ── Exam Prep: New ──
+  {id:"loanchart",icon:"📋",title:"Loan & Exam Reference",desc:"FHA/VA/USDA ratios, 4 C's, FICO, credit laws, bankruptcy",color:C.navy,badge:"Study",cat:"exam"},
+  {id:"loanquiz",icon:"🏦",title:"Loan Product Quiz",desc:"15 questions: ratios, credit scores, PMI/MIP, bankruptcy",color:"#1E40AF",badge:"Quiz",cat:"exam"},
+  {id:"fairhousingquiz",icon:"🏛️",title:"Fair Housing Quiz",desc:"12 questions: history, protected classes, exemptions",color:"#7C3AED",badge:"Quiz",cat:"exam"},
+  {id:"foreclosurequiz",icon:"🏠",title:"Default & Foreclosure Quiz",desc:"12 questions: loss mitigation, FHA options, timelines",color:"#DC2626",badge:"Quiz",cat:"exam"},
   // ── Workbook Activities (HO248) ──
   {id:"conflictorno",icon:"⚖️",title:"Conflict or No Conflict?",desc:"8 real COI scenarios from the HO248 workbook — is it a violation?",color:C.orange,badge:"HO248",cat:"workbook"},
   {id:"crackthecode",icon:"🔍",title:"Crack the Code: Notes",desc:"Review Bill Dehouse's case notes — find every HUD compliance problem",color:C.navy,badge:"HO248",cat:"workbook"},
@@ -1336,19 +1341,15 @@ const ALL_MODES=[
   {id:"nineotwo",icon:"📊",title:"HUD-9902 Coding",desc:"Code 5 client scenarios into the correct Section 9 & 10 categories",color:C.blue,badge:"HO248",cat:"workbook"},
 ];
 
-function Home({onSelect,stats,onLeaderboard}){
-  const cats=[{id:"learn",label:"📚 Study & Learn",color:C.teal},{id:"games",label:"🎮 Mini Games",color:C.purple},{id:"sims",label:"🎯 Simulations",color:C.gold},{id:"workbook",label:"📖 HO248 Workbook Activities",color:C.orange},{id:"exam",label:"📝 Exam Prep",color:C.navy}];
+function Home({onSelect}){
+  const cats=[{id:"exam",label:"📝 HUD Exam Prep",color:C.navy},{id:"workbook",label:"📖 HO248 Workbook Activities",color:C.orange},{id:"learn",label:"📚 Study & Learn",color:C.teal},{id:"games",label:"🎮 Mini Games",color:C.purple},{id:"sims",label:"🎯 Simulations",color:C.gold}];
   return(<div style={{minHeight:"100vh",background:`linear-gradient(160deg,${C.navy} 0%,#1E3A5F 55%,#0D6D64 100%)`}}>
     <div style={{textAlign:"center",padding:"36px 24px 20px"}}>
       <div style={{display:"inline-flex",alignItems:"center",gap:8,background:"rgba(255,255,255,0.08)",borderRadius:99,padding:"6px 18px",marginBottom:14}}>
         <span style={{color:C.tealLight,fontWeight:800,fontSize:12,letterSpacing:2,textTransform:"uppercase"}}>Hawaiian Community Assets</span>
       </div>
       <h1 style={{color:"#fff",fontSize:30,fontWeight:900,margin:"0 0 6px",letterSpacing:-1,fontFamily:"Georgia,serif"}}>HUD Counselor Academy</h1>
-      <p style={{color:"#94D4CF",fontSize:13,maxWidth:460,margin:"0 auto 20px"}}>26 activities · NHFHC · Kauai · Hilo · Oahu · Maui</p>
-      <div style={{display:"flex",gap:10,justifyContent:"center",flexWrap:"wrap",marginBottom:4}}>
-        {[{label:"Sessions",value:stats.completed},{label:"Points",value:stats.points.toLocaleString()},{label:"Streak",value:stats.streak+"🔥"}].map(s=>(<div key={s.label} style={{background:"rgba(255,255,255,0.1)",borderRadius:10,padding:"9px 14px",backdropFilter:"blur(8px)"}}><div style={{color:C.goldLight,fontSize:18,fontWeight:900}}>{s.value}</div><div style={{color:"#94D4CF",fontSize:10}}>{s.label}</div></div>))}
-        <button onClick={onLeaderboard} style={{background:"rgba(255,255,255,0.1)",border:"none",borderRadius:10,padding:"9px 14px",cursor:"pointer"}}><div style={{color:C.goldLight,fontSize:18}}>🏆</div><div style={{color:"#94D4CF",fontSize:10}}>Leaderboard</div></button>
-      </div>
+      <p style={{color:"#94D4CF",fontSize:13,maxWidth:460,margin:"0 auto 20px"}}>HUD compliance · Exam prep · Workbook activities</p>
     </div>
     <div style={{maxWidth:960,margin:"0 auto",padding:"0 16px 40px"}}>
       {cats.map(cat=>(<div key={cat.id} style={{marginBottom:24}}>
@@ -2129,22 +2130,170 @@ function ConflictOrNo({onBack,onComplete}){
   </div>);
 }
 
+// ─── EXAM PREP: LOAN PRODUCT QUIZ ────────────────────────────────────────────
+const LOAN_QUIZ_QS=[
+  {t:"Loan Types",q:"Which loan type requires a 1.75% upfront mortgage insurance premium (UFMIP)?",opts:["Conventional","VA","FHA","USDA"],c:2,fb:"FHA requires 1.75% UFMIP upfront — it can be paid at closing or financed into the loan. VA has a funding fee (1.25–3.3%) and USDA has a 2% guarantee fee."},
+  {t:"Loan Types",q:"What is the minimum credit score for a USDA loan?",opts:["580","600","620","640"],c:3,fb:"USDA requires a minimum 640 credit score. FHA allows as low as 500 (10% down) or 580 (3.5% down). VA typically requires 620."},
+  {t:"Loan Types",q:"For an FHA loan, a borrower with a 595 credit score qualifies for what minimum down payment?",opts:["0%","3%","3.5%","10%"],c:2,fb:"FHA: 580+ credit = 3.5% minimum down. 500–579 = 10% minimum. A score of 595 is above 580 → 3.5% applies."},
+  {t:"Loan Types",q:"PMI on a conventional loan is automatically released at what LTV?",opts:["75%","78%","80%","85%"],c:1,fb:"PMI is automatically released at 78% LTV. Borrowers can request removal at 80% LTV."},
+  {t:"Ratios",q:"What is the FHA front-end (housing) ratio guideline?",opts:["28%","31%","36%","41%"],c:1,fb:"FHA housing ratio = 31% (EEM 33%). Conventional = 28%. VA/USDA use overall DTI without a separate housing ratio requirement."},
+  {t:"Ratios",q:"A borrower earns $5,000/month gross. Total monthly debts including housing = $2,150. Back-end DTI?",opts:["38%","41%","43%","45%"],c:2,fb:"Back-end DTI = total debts ÷ gross income × 100 = $2,150 ÷ $5,000 × 100 = 43%."},
+  {t:"Ratios",q:"VA and USDA loans share the same DTI guideline of:",opts:["36%","39%","41%","45%"],c:2,fb:"Both VA and USDA use a 41% DTI guideline. FHA allows up to 43% (45% for EEM). Conventional is typically 36–45%."},
+  {t:"Credit",q:"The FICO score factor with the MOST weight (35%) is:",opts:["Amounts Owed","New Credit","Payment History","Credit Mix"],c:2,fb:"Payment History = 35% of FICO — the single most important factor. Amounts Owed = 30%, Length of History = 15%, New Credit = 10%, Mix = 10%."},
+  {t:"Credit",q:"Under FCRA, you have the right to:",opts:["A free credit report every month","Know what's in your file and dispute inaccurate info","Have negative items removed after 3 years","Prevent any access to your credit file"],c:1,fb:"FCRA: right to know what's in your file, dispute inaccurate info, and seek damages from violators. Access is limited, not prevented."},
+  {t:"Credit",q:"Under FACTA, credit card numbers on receipts must be:",opts:["Shown in full","Truncated — full number cannot be visible","Shown only on paper receipts","Encrypted but visible"],c:1,fb:"FACTA requires credit card numbers to be truncated on receipts. You also have the right to a free annual credit report and to place a fraud alert."},
+  {t:"Bankruptcy",q:"Chapter 7 bankruptcy is best described as:",opts:["A repayment plan over 3–5 years","Liquidation of non-exempt assets; requires means test","Restructuring of business debts only","A forbearance agreement"],c:1,fb:"Chapter 7 = liquidation of non-exempt assets. Requires a means test. Best for clients with no assets. Chapter 13 = repayment plan over 3–5 years (wage earners plan)."},
+  {t:"Bankruptcy",q:"Chapter 13 bankruptcy allows a borrower to:",opts:["Eliminate all debts immediately","Stop foreclosure and cure delinquent mortgage payments over time","File without any income","Discharge all student loans"],c:1,fb:"Chapter 13 can stop foreclosure and cure delinquent payments through a 3–5 year repayment plan. Also allows rescheduling secured debts."},
+  {t:"Loan Types",q:"Which loan type has NO upfront charge AND NO annual charge with 20% down?",opts:["FHA","VA","USDA","Conventional"],c:3,fb:"Conventional loans: no UFMIP and no annual MIP when 20%+ is put down. FHA has both. VA has a funding fee. USDA has a guarantee fee + annual charge."},
+  {t:"Loan Types",q:"An FHA loan with a 550 credit score has a maximum LTV of:",opts:["96.5%","95%","90%","85%"],c:2,fb:"500–579 credit: max LTV = 90% (10% minimum down). 580+: max LTV = 96.5% (3.5% down). Score 550 → 90% max LTV."},
+  {t:"Loan Types",q:"Which loan requires a Certificate of Eligibility as a key factor?",opts:["FHA","USDA","VA","Conventional"],c:2,fb:"VA loans require a Certificate of Eligibility (COE) to prove military service — the key distinguishing factor."},
+];
+function LoanQuiz({onBack,onComplete}){
+  const[idx,setIdx]=useState(0);const[sel,setSel]=useState(null);const[score,setScore]=useState(0);const[done,setDone]=useState(false);
+  const q=LOAN_QUIZ_QS[idx];
+  const pick=(i)=>{if(sel!==null)return;setSel(i);if(i===q.c)setScore(s=>s+7);};
+  const next=()=>{setSel(null);if(idx+1>=LOAN_QUIZ_QS.length)setDone(true);else setIdx(i=>i+1);};
+  if(done)return<ResultScreen emoji="🏦" title="Loan Quiz Done!" score={score} maxScore={LOAN_QUIZ_QS.length*7} color={"#1E40AF"} onBack={onBack} onSave={()=>onComplete(Math.round((score/(LOAN_QUIZ_QS.length*7))*100))}/>;
+  return(<div style={{minHeight:"100vh",background:C.bg}}>
+    <Header title="Loan Product Quiz" icon="🏦" color={"#1E40AF"} onBack={onBack} right={<span style={{background:"rgba(255,255,255,0.2)",borderRadius:8,padding:"4px 12px",color:"#fff",fontSize:12}}>{idx+1}/{LOAN_QUIZ_QS.length} · {score} pts</span>}/>
+    <div style={{maxWidth:660,margin:"16px auto",padding:"0 16px"}}>
+      <ProgressBar value={idx} max={LOAN_QUIZ_QS.length} color={"#1E40AF"}/>
+      <div style={{background:C.card,borderRadius:16,padding:20,boxShadow:"0 4px 20px rgba(0,0,0,0.08)"}}>
+        <Badge label={q.t} color={"#1E40AF"} small/><div style={{color:C.navy,fontSize:15,fontWeight:700,lineHeight:1.6,margin:"12px 0 16px"}}>{q.q}</div>
+        <div style={{display:"flex",flexDirection:"column",gap:8}}>
+          {q.opts.map((opt,i)=>{let bg=C.bg,border=`1px solid ${C.border}`;if(sel!==null){if(i===q.c){bg=C.greenPale;border=`2px solid ${C.green}`;}else if(i===sel&&i!==q.c){bg=C.redPale;border=`2px solid ${C.red}`;}}
+          return(<button key={i} onClick={()=>pick(i)} disabled={sel!==null} style={{background:bg,border,borderRadius:12,padding:"12px 16px",textAlign:"left",cursor:sel!==null?"default":"pointer",fontSize:13,color:C.text,lineHeight:1.5,fontFamily:"inherit",transition:"all 0.15s"}}>{opt}</button>);})}
+        </div>
+        {sel!==null&&<div style={{marginTop:14}}><div style={{background:sel===q.c?C.greenPale:C.redPale,borderRadius:10,padding:"12px 14px",fontSize:13,color:C.text,lineHeight:1.6,marginBottom:12}}>{sel===q.c?"✅ Correct! ":"❌ Incorrect — "}{q.fb}</div><Btn onClick={next} color={"#1E40AF"} full>{idx+1<LOAN_QUIZ_QS.length?"Next →":"Finish ✓"}</Btn></div>}
+      </div>
+    </div>
+  </div>);
+}
+
+// ─── EXAM PREP: FAIR HOUSING QUIZ ─────────────────────────────────────────────
+const FH_QUIZ_QS=[
+  {t:"Protected Classes",q:"How many federally protected classes does the Fair Housing Act recognize after all amendments?",opts:["5","6","7","8"],c:2,fb:"7 protected classes: Race, Color, National Origin, Religion, Sex (1974), Disability, and Familial Status (both 1988)."},
+  {t:"Protected Classes",q:"'Familial Status' as a protected class includes:",opts:["All renters with dependents","Families with children under 18 AND pregnant women","Only single parents","Married couples only"],c:1,fb:"Familial status protects families with children under 18 AND pregnant women. Added in the 1988 Fair Housing Amendments Act."},
+  {t:"Exemptions",q:"The 'Mrs. Murphy Exemption' covers owner-occupied buildings with how many units or fewer?",opts:["2","4","6","8"],c:1,fb:"Mrs. Murphy Exemption covers 4 units or fewer when owner-occupied. Owner must NOT use discriminatory advertising."},
+  {t:"Exemptions",q:"The Single-Family Housing Exemption applies when the owner:",opts:["Owns more than 5 homes","Owns 3 or fewer homes, no broker, no discriminatory ads","Is over age 62","Has lived there 5+ years"],c:1,fb:"Single-family exemption: owns 3 or fewer homes at one time, does NOT use a real estate broker, and does NOT use discriminatory advertising."},
+  {t:"History",q:"The Fair Housing Act was originally passed as part of the Civil Rights Act of:",opts:["1964","1966","1968","1974"],c:2,fb:"The Fair Housing Act is Title VIII of the Civil Rights Act of 1968, passed after Dr. King's assassination. Original classes: race, color, national origin, religion."},
+  {t:"History",q:"'Redlining' was institutionalized by which organization's residential security maps?",opts:["HUD","FHA","HOLC","VA"],c:2,fb:"The HOLC (Home Owners' Loan Corporation, 1933) created residential security maps that outlined minority neighborhoods as risky — the origin of Redlining."},
+  {t:"Complaint Process",q:"A Fair Housing complaint must be filed within how long of the alleged discrimination?",opts:["6 months","1 year","2 years","3 years"],c:1,fb:"Fair Housing complaints must be filed within 1 year of the discriminatory act. HUD must notify the respondent within 10 days."},
+  {t:"Complaint Process",q:"After HUD finds 'Reasonable Cause,' complainants have how many days to elect US District Court?",opts:["10 days","20 days","30 days","60 days"],c:1,fb:"20 days to elect US District Court (30-day hearing) OR HUD Administrative Law Judge (120-day hearing)."},
+  {t:"Definitions",q:"BLOCKBUSTING means:",opts:["Refusing to lend in certain neighborhoods","Directing buyers by race","Convincing owners to sell by warning of protected-class neighbors moving in","Charging different terms to different groups"],c:2,fb:"Blockbusting = convincing or attempting to convince a person to sell/rent because of the prospective entry of protected-class members into the neighborhood."},
+  {t:"Definitions",q:"'Reasonable Accommodation' under Fair Housing means:",opts:["Lowering rent for disabled tenants","Modifying physical structures","Changing rules, policies, or services necessary for a disabled person to enjoy the dwelling","Providing dedicated parking only"],c:2,fb:"Reasonable Accommodation = changes in rules, policies, practices, or services needed for a person with disability to use and enjoy a dwelling."},
+  {t:"Programs",q:"FHIP (Fair Housing Initiatives Program) provides funding to:",opts:["State and local agencies","Fair Housing Organizations and Nonprofits","Individual homebuyers","HUD regional offices"],c:1,fb:"FHIP → Fair Housing Organizations and Nonprofits. FHAP (Fair Housing Assistance Program) → State and Local Agencies."},
+  {t:"History",q:"Shelly v. Kraemer (1948) ruled that discriminatory deed restriction covenants were:",opts:["Constitutional","Void and unenforceable under the 14th Amendment","Legal in private transactions","Only unenforceable in federally funded housing"],c:1,fb:"The Supreme Court held that discriminatory deed covenants — property deed clauses excluding certain groups — were void and unenforceable under the 14th Amendment."},
+];
+function FairHousingQuiz({onBack,onComplete}){
+  const[idx,setIdx]=useState(0);const[sel,setSel]=useState(null);const[score,setScore]=useState(0);const[done,setDone]=useState(false);
+  const q=FH_QUIZ_QS[idx];
+  const pick=(i)=>{if(sel!==null)return;setSel(i);if(i===q.c)setScore(s=>s+8);};
+  const next=()=>{setSel(null);if(idx+1>=FH_QUIZ_QS.length)setDone(true);else setIdx(i=>i+1);};
+  if(done)return<ResultScreen emoji="🏛️" title="Fair Housing Quiz Done!" score={score} maxScore={FH_QUIZ_QS.length*8} color={"#7C3AED"} onBack={onBack} onSave={()=>onComplete(Math.round((score/(FH_QUIZ_QS.length*8))*100))}/>;
+  return(<div style={{minHeight:"100vh",background:C.bg}}>
+    <Header title="Fair Housing Quiz" icon="🏛️" color={"#7C3AED"} onBack={onBack} right={<span style={{background:"rgba(255,255,255,0.2)",borderRadius:8,padding:"4px 12px",color:"#fff",fontSize:12}}>{idx+1}/{FH_QUIZ_QS.length} · {score} pts</span>}/>
+    <div style={{maxWidth:660,margin:"16px auto",padding:"0 16px"}}>
+      <ProgressBar value={idx} max={FH_QUIZ_QS.length} color={"#7C3AED"}/>
+      <div style={{background:C.card,borderRadius:16,padding:20,boxShadow:"0 4px 20px rgba(0,0,0,0.08)"}}>
+        <Badge label={q.t} color={"#7C3AED"} small/><div style={{color:C.navy,fontSize:15,fontWeight:700,lineHeight:1.6,margin:"12px 0 16px"}}>{q.q}</div>
+        <div style={{display:"flex",flexDirection:"column",gap:8}}>
+          {q.opts.map((opt,i)=>{let bg=C.bg,border=`1px solid ${C.border}`;if(sel!==null){if(i===q.c){bg=C.greenPale;border=`2px solid ${C.green}`;}else if(i===sel&&i!==q.c){bg=C.redPale;border=`2px solid ${C.red}`;}}
+          return(<button key={i} onClick={()=>pick(i)} disabled={sel!==null} style={{background:bg,border,borderRadius:12,padding:"12px 16px",textAlign:"left",cursor:sel!==null?"default":"pointer",fontSize:13,color:C.text,lineHeight:1.5,fontFamily:"inherit",transition:"all 0.15s"}}>{opt}</button>);})}
+        </div>
+        {sel!==null&&<div style={{marginTop:14}}><div style={{background:sel===q.c?C.greenPale:C.redPale,borderRadius:10,padding:"12px 14px",fontSize:13,color:C.text,lineHeight:1.6,marginBottom:12}}>{sel===q.c?"✅ Correct! ":"❌ Incorrect — "}{q.fb}</div><Btn onClick={next} color={"#7C3AED"} full>{idx+1<FH_QUIZ_QS.length?"Next →":"Finish ✓"}</Btn></div>}
+      </div>
+    </div>
+  </div>);
+}
+
+// ─── EXAM PREP: DEFAULT & FORECLOSURE QUIZ ────────────────────────────────────
+const FC_QUIZ_QS=[
+  {t:"Definitions",q:"A conventional loan is considered in DEFAULT when a payment has not been made after:",opts:["30 days","60 to 90 days","90 to 120 days","180 days"],c:1,fb:"Conventional: default after 60–90 days without payment. FHA: default after 30 days from the due date."},
+  {t:"Process",q:"A servicer cannot make a first notice for foreclosure until the borrower is at least how many days delinquent?",opts:["30 days","60 days","90 days","120 days"],c:3,fb:"CFPB mortgage servicing rules: a servicer cannot make a first notice or filing for foreclosure until the borrower is more than 120 days delinquent."},
+  {t:"Loss Mitigation",q:"What is the FIRST step in the Loss Mitigation STEPS process?",opts:["Submit request to servicer","Determine the reason the client is delinquent","Gather required financial documents","Complete the necessary forms"],c:1,fb:"Step 1 = Determine the reason client is delinquent. Full STEPS: 1-Reason, 2-Stay or leave? 3-Type of mortgage, 4-Gather docs, 5-Complete forms, 6-Submit, 7-Respond, 8-If approved, discuss affordability."},
+  {t:"Foreclosure Types",q:"In a NON-JUDICIAL foreclosure, ownership transfers to the servicer:",opts:["After a court judgment","When the homeowner agrees","By lack of sale if the house doesn't sell","After 120 days delinquency automatically"],c:2,fb:"Non-judicial: courts are not involved. The servicer issues a Notice of Default, then Notice of Sale. Ownership transfers by lack of sale if the home doesn't sell."},
+  {t:"FHA Options",q:"FHA Formal Forbearance requires proof of:",opts:["Job loss only","Verifiable income reduction OR increase in living expenses","Minimum 6 months delinquency","Attorney representation"],c:1,fb:"FHA Formal Forbearance requires verifiable losses of income OR increase in living expenses. It is the only forbearance option requiring this documentation."},
+  {t:"FHA Options",q:"The FHA HAMP partial claim cannot exceed what percentage of unpaid principal?",opts:["20%","25%","30%","35%"],c:2,fb:"The partial claim under FHA HAMP cannot exceed 30% of the unpaid principal balance. Borrower must have made at least 4 payments and prior modification must be within 24 months."},
+  {t:"Transitioning",q:"A 'Deed-in-Lieu of Foreclosure' means:",opts:["The lender sells the home for less than owed","The borrower voluntarily transfers the deed to the lender","The court transfers title to the lender","The borrower abandons the property"],c:1,fb:"Deed-in-Lieu = the borrower voluntarily transfers the deed to the lender to avoid foreclosure. FHA benefit: up to $2,000 in financial assistance."},
+  {t:"Transitioning",q:"A Short Sale (Pre-Foreclosure Sale) means:",opts:["The sale closes quickly","The home sells for less than owed, with lender approval","The lender takes back the property","The borrower finds a buyer without lender involvement"],c:1,fb:"Short Sale = the mortgage company allows the homeowner to sell for less than the amount still owed. Requires lender approval. May result in deficiency judgment unless waived."},
+  {t:"Consequences",q:"A foreclosure can remain on a credit report for up to how many years?",opts:["3 years","5 years","7 years","10 years"],c:2,fb:"Foreclosure stays on credit for up to 7 years and lowers credit score. It also prevents the option to buy again for several years."},
+  {t:"Programs",q:"HLP (Hope Loan Portal) can ONLY be used by:",opts:["Any HUD-approved agency","501(c)(3) non-profit counseling agencies that are HUD approved OR participating in NFMC","Individual borrowers directly","Any licensed real estate agent"],c:1,fb:"HLP is only available to 501(c)(3) non-profit counseling agencies that are HUD approved or participating in the National Foreclosure Mitigation Counseling (NFMC) program."},
+  {t:"Programs",q:"Under HLP, servicers must update case status every how many days when in control of the case?",opts:["5 days","7 days","10 days","14 days"],c:2,fb:"Servicers must update case status every 10 days when they are in control of the case."},
+  {t:"Definitions",q:"'Dual Tracking' refers to:",opts:["Having two mortgages on one property","A servicer proceeding with foreclosure while simultaneously working with the borrower on loss mitigation","Applying for two loan modifications at once","The two-step foreclosure process"],c:1,fb:"Dual Tracking = when a servicer moves forward with foreclosure while simultaneously working with the borrower to avoid it. Restricted by CFPB mortgage servicing regulations."},
+];
+function ForeclosureQuiz({onBack,onComplete}){
+  const[idx,setIdx]=useState(0);const[sel,setSel]=useState(null);const[score,setScore]=useState(0);const[done,setDone]=useState(false);
+  const q=FC_QUIZ_QS[idx];
+  const pick=(i)=>{if(sel!==null)return;setSel(i);if(i===q.c)setScore(s=>s+8);};
+  const next=()=>{setSel(null);if(idx+1>=FC_QUIZ_QS.length)setDone(true);else setIdx(i=>i+1);};
+  if(done)return<ResultScreen emoji="🏠" title="Foreclosure Quiz Done!" score={score} maxScore={FC_QUIZ_QS.length*8} color={"#DC2626"} onBack={onBack} onSave={()=>onComplete(Math.round((score/(FC_QUIZ_QS.length*8))*100))}/>;
+  return(<div style={{minHeight:"100vh",background:C.bg}}>
+    <Header title="Default & Foreclosure Quiz" icon="🏠" color={"#DC2626"} onBack={onBack} right={<span style={{background:"rgba(255,255,255,0.2)",borderRadius:8,padding:"4px 12px",color:"#fff",fontSize:12}}>{idx+1}/{FC_QUIZ_QS.length} · {score} pts</span>}/>
+    <div style={{maxWidth:660,margin:"16px auto",padding:"0 16px"}}>
+      <ProgressBar value={idx} max={FC_QUIZ_QS.length} color={"#DC2626"}/>
+      <div style={{background:C.card,borderRadius:16,padding:20,boxShadow:"0 4px 20px rgba(0,0,0,0.08)"}}>
+        <Badge label={q.t} color={"#DC2626"} small/><div style={{color:C.navy,fontSize:15,fontWeight:700,lineHeight:1.6,margin:"12px 0 16px"}}>{q.q}</div>
+        <div style={{display:"flex",flexDirection:"column",gap:8}}>
+          {q.opts.map((opt,i)=>{let bg=C.bg,border=`1px solid ${C.border}`;if(sel!==null){if(i===q.c){bg=C.greenPale;border=`2px solid ${C.green}`;}else if(i===sel&&i!==q.c){bg=C.redPale;border=`2px solid ${C.red}`;}}
+          return(<button key={i} onClick={()=>pick(i)} disabled={sel!==null} style={{background:bg,border,borderRadius:12,padding:"12px 16px",textAlign:"left",cursor:sel!==null?"default":"pointer",fontSize:13,color:C.text,lineHeight:1.5,fontFamily:"inherit",transition:"all 0.15s"}}>{opt}</button>);})}
+        </div>
+        {sel!==null&&<div style={{marginTop:14}}><div style={{background:sel===q.c?C.greenPale:C.redPale,borderRadius:10,padding:"12px 14px",fontSize:13,color:C.text,lineHeight:1.6,marginBottom:12}}>{sel===q.c?"✅ Correct! ":"❌ Incorrect — "}{q.fb}</div><Btn onClick={next} color={"#DC2626"} full>{idx+1<FC_QUIZ_QS.length?"Next →":"Finish ✓"}</Btn></div>}
+      </div>
+    </div>
+  </div>);
+}
+
+// ─── EXAM PREP: LOAN & EXAM REFERENCE CHART ───────────────────────────────────
+function LoanChart({onBack}){
+  const rows=[["Housing Ratio","28%","31% (EEM 33%)","41%","29%"],["DTI","36–45% (up to 50%)","43% (EEM 45%)","41%","41%"],["Upfront Fee","None","1.75% UFMIP","1.25–3.3% Funding Fee","2% Guarantee Fee"],["Annual Fee","None (PMI if <20%)","0.8–1.05% MIP","None","0.5%"],["Min Credit","620–640","580 (3.5% down) / 500–579 (10%)","620","640"],["Down Payment","Typically 20%","3.5% (can be gifted)","None or low","None"],];
+  return(<div style={{minHeight:"100vh",background:C.bg}}>
+    <Header title="Loan & Exam Reference" icon="📋" color={C.navy} onBack={onBack}/>
+    <div style={{maxWidth:860,margin:"0 auto",padding:"16px"}}>
+      <div style={{background:C.card,borderRadius:16,padding:20,marginBottom:14,boxShadow:"0 4px 20px rgba(0,0,0,0.08)",overflowX:"auto"}}>
+        <div style={{color:C.navy,fontWeight:800,marginBottom:12}}>Loan Product Comparison</div>
+        <table style={{width:"100%",borderCollapse:"collapse",fontSize:12}}>
+          <thead><tr style={{background:C.navy,color:"#fff"}}>{["Feature","Conventional","FHA","VA","USDA"].map(h=><th key={h} style={{padding:"7px 8px",textAlign:"center"}}>{h}</th>)}</tr></thead>
+          <tbody>{rows.map((row,i)=><tr key={i} style={{background:i%2===0?"#F8FAFC":"#fff"}}>{row.map((cell,j)=><td key={j} style={{padding:"6px 8px",border:`1px solid ${C.border}`,textAlign:j===0?"left":"center",fontWeight:j===0?700:400,background:j===0?C.navyMid:"inherit",color:j===0?"#fff":"inherit"}}>{cell}</td>)}</tr>)}</tbody>
+        </table>
+      </div>
+      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:14,marginBottom:14}}>
+        <div style={{background:C.card,borderRadius:16,padding:20,boxShadow:"0 4px 20px rgba(0,0,0,0.08)"}}>
+          <div style={{color:C.navy,fontWeight:800,marginBottom:12}}>The 4 C's of Credit</div>
+          {[["Capacity","Ability to repay; ratios & financial fitness",C.green],["Capital","Savings & assets for down payment, closing costs",C.blue],["Character","Credit history, score, job history, housing stability",C.gold],["Collateral","The property itself; appraised value",C.red]].map(([k,v,col])=><div key={k} style={{background:col+"15",borderRadius:8,padding:"8px 10px",marginBottom:6,fontSize:13}}><strong style={{color:col}}>{k}</strong> — {v}</div>)}
+        </div>
+        <div style={{background:C.card,borderRadius:16,padding:20,boxShadow:"0 4px 20px rgba(0,0,0,0.08)"}}>
+          <div style={{color:C.navy,fontWeight:800,marginBottom:12}}>FICO Score Breakdown</div>
+          {[["35%","Payment History","#EF4444"],["30%","Amounts Owed","#F59E0B"],["15%","Length of History","#3B82F6"],["10%","New Credit","#10B981"],["10%","Credit Mix","#8B5CF6"]].map(([pct,label,col])=><div key={label} style={{display:"flex",alignItems:"center",gap:8,marginBottom:6,fontSize:13}}><span style={{fontWeight:800,color:col,width:34,flexShrink:0}}>{pct}</span><span>{label}</span></div>)}
+        </div>
+      </div>
+      <div style={{background:C.card,borderRadius:16,padding:20,marginBottom:14,boxShadow:"0 4px 20px rgba(0,0,0,0.08)"}}>
+        <div style={{color:C.navy,fontWeight:800,marginBottom:12}}>Consumer Credit Laws</div>
+        {[["FCRA","#3B82F6","Right to know what's in your file · Dispute inaccurate info · Seek damages from violators · Access is limited"],["FACTA","#10B981","Free annual credit report · Place fraud alert · Credit card numbers must be truncated on receipts"],["FCBA","#F59E0B","Dispute billing errors · 60 days consumer to file · 30 days creditor to acknowledge · 90 days to research · Statements 14 days before due date"]].map(([law,col,desc])=><div key={law} style={{borderLeft:`4px solid ${col}`,paddingLeft:12,marginBottom:10,fontSize:13,lineHeight:1.6}}><strong style={{color:col}}>{law}</strong> — {desc}</div>)}
+      </div>
+      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:14,marginBottom:14}}>
+        <div style={{background:C.card,borderRadius:16,padding:20,boxShadow:"0 4px 20px rgba(0,0,0,0.08)"}}>
+          <div style={{color:C.navy,fontWeight:800,marginBottom:10}}>Bankruptcy</div>
+          <div style={{background:C.redPale,borderRadius:10,padding:12,marginBottom:8,fontSize:13,lineHeight:1.6}}><strong style={{color:C.red}}>Chapter 7</strong> — Liquidation of non-exempt assets · Requires means test · Best for clients with no assets</div>
+          <div style={{background:C.bluePale,borderRadius:10,padding:12,fontSize:13,lineHeight:1.6}}><strong style={{color:C.blue}}>Chapter 13</strong> — Repayment plan 3–5 years · Can stop foreclosure · Reschedule secured debts · Wage earners plan</div>
+        </div>
+        <div style={{background:C.card,borderRadius:16,padding:20,boxShadow:"0 4px 20px rgba(0,0,0,0.08)"}}>
+          <div style={{color:C.navy,fontWeight:800,marginBottom:10}}>Fair Housing Timeline</div>
+          {[["1866","Civil Rights Act — equal property rights"],["1933","HOLC — created Redlining maps"],["1948","Shelly v. Kraemer — deed restrictions void"],["1968","FHA — race, color, origin, religion"],["1974","FHA amended — added Sex"],["1988","FHA amended — Disability + Familial Status (7 total)"]].map(([yr,ev])=><div key={yr} style={{fontSize:12,padding:"4px 8px",background:"#F8FAFC",borderRadius:5,marginBottom:4}}><strong>{yr}</strong> {ev}</div>)}
+        </div>
+      </div>
+      <div style={{textAlign:"center"}}><Btn onClick={onBack} outline color={C.navy} small>← Back to Menu</Btn></div>
+    </div>
+  </div>);
+}
+
 // ─── ROOT ─────────────────────────────────────────────────────────────────
 export default function App(){
   const[screen,setScreen]=useState("home");
   const[scenario,setScenario]=useState(null);
   const[aiProfile,setAiProfile]=useState(null);
-  const[lb,setLb]=useState([
-    {name:"🏝️ NHFHC",score:320,mode:"Mock Exam",date:Date.now()-86400000*2},
-    {name:"🌺 Kauai",score:285,mode:"Gauntlet",date:Date.now()-86400000*4},
-    {name:"🌋 Hilo",score:240,mode:"Jeopardy",date:Date.now()-86400000*6},
-    {name:"🌊 Oahu",score:210,mode:"Hot Seat",date:Date.now()-86400000},
-    {name:"🐋 Maui",score:185,mode:"AI Chat",date:Date.now()-86400000*3},
-  ]);
-  const[stats,setStats]=useState({completed:7,points:1440,streak:9});
 
-  const addScore=(score,mode)=>{const teams=["🏝️ NHFHC","🌺 Kauai","🌋 Hilo","🌊 Oahu","🐋 Maui"];const team=window.prompt("Which island team?\n\n1. NHFHC\n2. Kauai\n3. Hilo\n4. Oahu\n5. Maui\n\nType your team name:")||"You";const matched=teams.find(t=>t.toLowerCase().includes(team.toLowerCase()))||team;setLb(p=>[...p,{name:matched,score,mode,date:Date.now()}]);setStats(s=>({...s,completed:s.completed+1,points:s.points+score,streak:s.streak+1}));};
-  const finish=(score,mode)=>{addScore(score,mode);setScreen("leaderboard");setScenario(null);setAiProfile(null);};
+  const finish=(score,mode)=>{setScreen("home");setScenario(null);setAiProfile(null);};
   const back=()=>{setScreen("home");setScenario(null);setAiProfile(null);};
 
   if(screen==="flashcards")return<FlashCards onBack={back} onComplete={s=>finish(s,"Flashcards")}/>;
@@ -2168,11 +2317,16 @@ export default function App(){
   if(screen==="gauntlet")return<Gauntlet onBack={back} onComplete={s=>finish(s,"Gauntlet")}/>;
   if(screen==="simulator"){if(!scenario)return<ScenarioSelect onSelect={s=>setScenario(s)} onBack={back}/>;return<ClientSim scenario={scenario} onBack={()=>setScenario(null)} onComplete={s=>finish(s,"Simulator")}/>;}
   if(screen==="ai-chat"){if(!aiProfile)return<AIChatSelect onSelect={p=>setAiProfile(p)} onBack={back}/>;return<AIChat profile={aiProfile} onBack={()=>setAiProfile(null)} onComplete={s=>finish(s,"AI Chat")}/>;}
+  // Workbook activities
   if(screen==="truthtracking")return<TruthTracking onBack={back} onComplete={s=>finish(s,"Truth in the Tracking")}/>;
   if(screen==="crackthecode")return<CrackTheCode onBack={back} onComplete={s=>finish(s,"Crack the Code")}/>;
   if(screen==="nineotwo")return<NineOTwo onBack={back} onComplete={s=>finish(s,"HUD-9902 Coding")}/>;
   if(screen==="actionplan")return<ActionPlanBuilder onBack={back} onComplete={s=>finish(s,"Action Plan Builder")}/>;
   if(screen==="conflictorno")return<ConflictOrNo onBack={back} onComplete={s=>finish(s,"Conflict or No Conflict")}/>;
-  if(screen==="leaderboard")return<Leaderboard entries={lb} onBack={back}/>;
-  return<Home onSelect={s=>setScreen(s)} stats={stats} onLeaderboard={()=>setScreen("leaderboard")}/>;
+  // New exam prep
+  if(screen==="loanquiz")return<LoanQuiz onBack={back} onComplete={s=>finish(s,"Loan Product Quiz")}/>;
+  if(screen==="fairhousingquiz")return<FairHousingQuiz onBack={back} onComplete={s=>finish(s,"Fair Housing Quiz")}/>;
+  if(screen==="foreclosurequiz")return<ForeclosureQuiz onBack={back} onComplete={s=>finish(s,"Default & Foreclosure Quiz")}/>;
+  if(screen==="loanchart")return<LoanChart onBack={back}/>;
+  return<Home onSelect={s=>setScreen(s)}/>;
 }
